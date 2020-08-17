@@ -20,11 +20,22 @@ func main() {
 	//fmt.Scanf("%d", &comando)
 	fmt.Scan(&comando)
 
-	if comando == 1 {
+	/* if comando == 1 {
 		fmt.Println("Monitorando...")
 	} else if comando == 2 {
 		fmt.Println("Exibindo os logs...")
 	} else if comando != 0 {
+		fmt.Println("Comando Inválido!")
+	} */
+
+	switch comando {
+	case 1:
+		fmt.Println("Monitorando...")
+	case 2:
+		fmt.Println("Exibindo os logs...")
+	case 0:
+		fmt.Println("Saindo do programa...")
+	default:
 		fmt.Println("Comando Inválido!")
 	}
 

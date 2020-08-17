@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"reflect"
 )
 
 func main() {
@@ -23,5 +24,6 @@ func main() {
 	//Imprimindo dados da variavel comando
 	fmt.Println("O endereço da variável comando é: ", &comando)
 	fmt.Println("O comando escolhido foi", comando)
+	fmt.Println("O tipo da variável comando é", reflect.TypeOf(comando))
 
 }

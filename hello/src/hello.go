@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"reflect"
 )
 
 func main() {
@@ -21,9 +20,12 @@ func main() {
 	//fmt.Scanf("%d", &comando)
 	fmt.Scan(&comando)
 
-	//Imprimindo dados da variavel comando
-	fmt.Println("O endereço da variável comando é: ", &comando)
-	fmt.Println("O comando escolhido foi", comando)
-	fmt.Println("O tipo da variável comando é", reflect.TypeOf(comando))
+	if comando == 1 {
+		fmt.Println("Monitorando...")
+	} else if comando == 2 {
+		fmt.Println("Exibindo os logs...")
+	} else if comando != 0 {
+		fmt.Println("Comando Inválido!")
+	}
 
 }

@@ -93,12 +93,18 @@ func iniciarMonitoramento(lista *[]string) {
 	fmt.Println("Monitorando...")
 
 	for _, url := range *lista {
-		resposta, erro := http.Get(url)
-
-		fmt.Println("URL:", url)
-		fmt.Println("Resposta:", resposta)
-		fmt.Println("Erro", erro)
+		monitorarSite(url)
 	}
+}
+
+//Esta funcao serve para realizar o monitoramento de um site.
+//Parametro: urlSite: Url do site a ser monitorado.
+func monitorarSite(urlSite string) {
+	resposta, erro := http.Get(urlSite)
+
+	fmt.Println("URL:", urlSite)
+	fmt.Println("Resposta:", resposta)
+	fmt.Println("Erro", erro)
 }
 
 //Esta funcao serve para adicionar sites a lista de sites a serem monitorados

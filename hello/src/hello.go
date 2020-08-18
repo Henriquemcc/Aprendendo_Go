@@ -5,7 +5,11 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 )
+
+var monitoramentos = 10
+var delay = 5 * time.Minute
 
 //Esta funcao eh a primeira funcao a ser executada pelo programa escrito em Go.
 func main() {
@@ -47,11 +51,15 @@ func main() {
 		case 4:
 			iniciarMonitoramento(&listaDeUrlsDeSites)
 
-		//Mostrar os logs
+		//Alterar configuracoes de monitoramento
 		case 5:
+			alterarConfiguracoes()
+
+		//Mostrar os logs
+		case 6:
 
 		//Carregar lista a partir de um arquivo
-		case 6:
+		case 7:
 
 		default:
 			fmt.Println("Comando Inválido!")
@@ -72,7 +80,7 @@ func exibirIntroducao() {
 //Esta funcao serve para obter o comando digitado pelo usuario apos exibir o menu do programa.
 //Retorno: retorna um inteiro de 8 bits indicando qual comando foi solicitado pelo usuario.
 func lerComando() int8 {
-	var comando int8
+	var comando int8 = -1
 	fmt.Scan(&comando)
 	return comando
 }
@@ -85,6 +93,7 @@ func exibirMenu() {
 	fmt.Println("2 - Mostrar sites da lista de sites monitorados.")
 	fmt.Println("3 - Remover sites da lista de sites monitorados.")
 	fmt.Println("4 - Iniciar o monitoramento.")
+	fmt.Println("5 - Alterar configurações de monitoramento.")
 }
 
 //Esta funcao serve para realizar o monitoramento do(s) site(s).
@@ -92,8 +101,13 @@ func exibirMenu() {
 func iniciarMonitoramento(lista *[]string) {
 	fmt.Println("Monitorando...")
 
-	for _, url := range *lista {
-		monitorarSite(url)
+	for indice := 0; indice < monitoramentos; indice++ {
+		fmt.Println("Teste", indice, "de", monitoramentos)
+		for _, url := range *lista {
+			monitorarSite(url)
+			fmt.Println("")
+		}
+		time.Sleep(delay)
 	}
 }
 
@@ -172,4 +186,62 @@ func removerSites(lista *[]string) {
 		//Removendo a url da lista
 		*lista = append((*lista)[:indice], (*lista)[(indice+1):]...)
 	}
+}
+
+//Esta funcao serve para alterar as configuracoes de monitoramento
+func alterarConfiguracoes() {
+	fmt.Println("Alterando configurações de monitoramento...")
+
+	//Obtendo o tempo de delay
+	fmt.Println("Tempo de delay: ")
+
+	//Valor do tempo de delay
+	var valor int = 0
+	for valor <= 0 {
+		fmt.Print("Valor: ")
+		fmt.Scan(&valor)
+
+		if valor <= 0 {
+			fmt.Println("Valor inválido!. Tente novamente.")
+		}
+	}
+
+	//Unidade do tempo de delay
+	delay = time.Duration(0)
+	for delay == 0 {
+		var unidadeTempo string
+		fmt.Print("Unidade de tempo (nanosegundos/microsegundos/milisegundos/segundos/minutos/horas) : ")
+		fmt.Scan(&unidadeTempo)
+		unidadeTempo = strings.ToLower(unidadeTempo)
+		unidadeTempo = string(unidadeTempo[:3])
+
+		//Calculando a unidade de tempo
+		if unidadeTempo == "nan" {
+			delay = time.Nanosecond * time.Duration(valor)
+		} else if unidadeTempo == "mic" {
+			delay = time.Microsecond * time.Duration(valor)
+		} else if unidadeTempo == "mil" {
+			delay = time.Millisecond * time.Duration(valor)
+		} else if unidadeTempo == "seg" {
+			delay = time.Second * time.Duration(valor)
+		} else if unidadeTempo == "min" {
+			delay = time.Minute * time.Duration(valor)
+		} else if unidadeTempo == "hor" {
+			delay = time.Hour * time.Duration(valor)
+		} else {
+			fmt.Println("Unidade de tempo invalida! Tente novamente.")
+		}
+	}
+
+	//Quantidade de monitoramentos
+	monitoramentos = 0
+	for monitoramentos <= 0 {
+		fmt.Print("Quantidade de vezes que o(s) site(s) deve(m) ser monitorado(s): ")
+		fmt.Scan(&monitoramentos)
+
+		if monitoramentos <= 0 {
+			fmt.Println("Valor inválido! Tente novamente.")
+		}
+	}
+
 }

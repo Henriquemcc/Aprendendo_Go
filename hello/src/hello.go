@@ -26,6 +26,7 @@ func main() {
 		//Obtendo o comando do usuario
 		exibirMenu()
 		comando := lerComando()
+		fmt.Println("Comando a ser executado:", comando)
 
 		//Executando o comando do usuario
 		switch comando {
@@ -63,8 +64,9 @@ func main() {
 
 		default:
 			fmt.Println("Comando Inválido!")
-			continue
 		}
+
+		fmt.Println("")
 
 	}
 
@@ -102,12 +104,13 @@ func iniciarMonitoramento(lista *[]string) {
 	fmt.Println("Monitorando...")
 
 	for indice := 0; indice < monitoramentos; indice++ {
-		fmt.Println("Teste", indice, "de", monitoramentos)
+		fmt.Println("Teste", indice+1, "de", monitoramentos)
 		for _, url := range *lista {
 			monitorarSite(url)
 			fmt.Println("")
 		}
 		time.Sleep(delay)
+		fmt.Println("")
 	}
 }
 

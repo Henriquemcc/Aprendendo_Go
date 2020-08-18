@@ -10,22 +10,35 @@ import (
 func main() {
 
 	exibirIntroducao()
-	exibirMenu()
 
-	comando := lerComando()
+	//Executando o loop enquanto o comando for diferente de 0
+	for {
 
-	switch comando {
-	case 1:
-		iniciarMonitoramento()
-	case 2:
-		fmt.Println("Exibindo os logs...")
-	case 0:
-		fmt.Println("Saindo do programa...")
-		os.Exit(0)
-	default:
-		fmt.Println("Comando Inválido!")
-		os.Exit(-1)
+		//Obtendo o comando do usuario
+		exibirMenu()
+		comando := lerComando()
+
+		switch comando {
+		case 1:
+			iniciarMonitoramento()
+		case 2:
+			fmt.Println("Exibindo os logs...")
+		case 0:
+			fmt.Println("Saindo do programa...")
+		default:
+			fmt.Println("Comando Inválido!")
+			os.Exit(-1)
+		}
+
+		//Finalizando o loop
+		if comando == 0 {
+			break
+		}
+
 	}
+
+	//Finalizando o programa
+	os.Exit(0)
 
 }
 
@@ -60,5 +73,11 @@ func iniciarMonitoramento() {
 
 	fmt.Println("Resposta:", resposta)
 	fmt.Println("Erro", erro)
+
+	if resposta.StatusCode == 200 {
+		fmt.Println("O site", site, "foi carregado com sucesso")
+	} else {
+		fmt.Println("O site", site, "está com problemas. Status code:", resposta.StatusCode)
+	}
 
 }

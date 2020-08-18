@@ -4,12 +4,17 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 )
 
-//A funcao main eh a primeira funcao a ser executada pelo programa escrito em Go.
+//Esta funcao eh a primeira funcao a ser executada pelo programa escrito em Go.
 func main() {
 
+	//Exibindo o menu de introducao
 	exibirIntroducao()
+
+	//Criando a lista de urls
+	var listaDeUrlsDeSites []string
 
 	//Executando o loop enquanto o comando for diferente de 0
 	for {
@@ -18,66 +23,147 @@ func main() {
 		exibirMenu()
 		comando := lerComando()
 
+		//Executando o comando do usuario
 		switch comando {
-		case 1:
-			iniciarMonitoramento()
-		case 2:
-			fmt.Println("Exibindo os logs...")
+
+		//Sair do programa
 		case 0:
 			fmt.Println("Saindo do programa...")
+			os.Exit(0)
+
+		//Adicionando sites a lista
+		case 1:
+			adicionarSites(&listaDeUrlsDeSites)
+
+		//Mostrando a lista de sites
+		case 2:
+			mostrarSites(&listaDeUrlsDeSites)
+
+		//Removendo sites da lista
+		case 3:
+			removerSites(&listaDeUrlsDeSites)
+
+		//Executando o monitoramento
+		case 4:
+			iniciarMonitoramento(&listaDeUrlsDeSites)
+
+		//Mostrar os logs
+		case 5:
+
+		//Carregar lista a partir de um arquivo
+		case 6:
+
 		default:
 			fmt.Println("Comando Inválido!")
-			os.Exit(-1)
-		}
-
-		//Finalizando o loop
-		if comando == 0 {
-			break
+			continue
 		}
 
 	}
 
-	//Finalizando o programa
-	os.Exit(0)
-
 }
 
-//A funcao exibirIntroducao exibe a mensagem de bem vindo ao programa e explica a utilidade do programa.
+//Esta funcao serve para exibir a mensagem de bem vindo ao programa e explica a utilidade do programa.
 func exibirIntroducao() {
 
 	fmt.Println("Bem vindo ao monitor de websites.")
 	fmt.Println("Este programa serve para monitorar o status de determinados websites.")
 }
 
-//A funcao lerComando obtem o comando digitado pelo usuario apos exibir o menu do programa.
-//Esta funcao retorna um inteiro de 8 bits indicando qual comando foi solicitado pelo usuario.
+//Esta funcao serve para obter o comando digitado pelo usuario apos exibir o menu do programa.
+//Retorno: retorna um inteiro de 8 bits indicando qual comando foi solicitado pelo usuario.
 func lerComando() int8 {
 	var comando int8
 	fmt.Scan(&comando)
 	return comando
 }
 
-//A funcao exibirMenu exibe os comandos que o usuario pode executar.
+//Esta funcao serve para exibir os comandos que o usuario pode executar.
 func exibirMenu() {
-	fmt.Println("O que deseja fazer: ")
-	fmt.Println("0 - Sair do programa")
-	fmt.Println("1 - Iniciar Monitoramento")
-	fmt.Println("2 - Exibir os logs")
+	fmt.Println("O que deseja fazer?")
+	fmt.Println("0 - Sair do programa.")
+	fmt.Println("1 - Adicionar sites a lista de sites monitorados.")
+	fmt.Println("2 - Mostrar sites da lista de sites monitorados.")
+	fmt.Println("3 - Remover sites da lista de sites monitorados.")
+	fmt.Println("4 - Iniciar o monitoramento.")
 }
 
-//A funcao iniciarMonitoramento realiza o monitoramento do(s) site(s).
-func iniciarMonitoramento() {
+//Esta funcao serve para realizar o monitoramento do(s) site(s).
+//Parametro: lista: Ponteiro para a lista de url de sites que serao monitorados
+func iniciarMonitoramento(lista *[]string) {
 	fmt.Println("Monitorando...")
-	site := "https://henriquemcc101508968.wordpress.com"
-	resposta, erro := http.Get(site)
 
-	fmt.Println("Resposta:", resposta)
-	fmt.Println("Erro", erro)
+	for _, url := range *lista {
+		resposta, erro := http.Get(url)
 
-	if resposta.StatusCode == 200 {
-		fmt.Println("O site", site, "foi carregado com sucesso")
-	} else {
-		fmt.Println("O site", site, "está com problemas. Status code:", resposta.StatusCode)
+		fmt.Println("URL:", url)
+		fmt.Println("Resposta:", resposta)
+		fmt.Println("Erro", erro)
 	}
+}
 
+//Esta funcao serve para adicionar sites a lista de sites a serem monitorados
+//Parametro: lista: Ponteiro para a lista de url de sites que serao monitorados
+func adicionarSites(lista *[]string) {
+	fmt.Println("Adicionando sites a lista...")
+	adicionarSites := true
+	for adicionarSites {
+
+		//Lendo o endereco do site
+		fmt.Print("URL do site: ")
+		var url string
+		fmt.Scan(&url)
+
+		//Verificando se esta correto
+		fmt.Print("O endereco do site: ", url, " está correto? ")
+		var resposta string
+		fmt.Scan(&resposta)
+		resposta = strings.ToLower(resposta)
+		resposta = string(resposta[0])
+		if resposta != string('s') {
+			continue
+		} else {
+
+			//Adicionando o site a lista
+			*lista = append(*lista, url)
+
+			//Verificando se o usuario deseja adicionar mais sites
+			fmt.Print("Deseja adicionar mais sites a lista? ")
+			var resposta string
+			fmt.Scan(&resposta)
+			resposta = strings.ToLower(resposta)
+			resposta = string(resposta[0])
+			if resposta != string('s') {
+				adicionarSites = false
+			}
+		}
+	}
+}
+
+//Esta funcao serve para mostrar todos os urls dos sites da lista
+//Parametro: lista: Ponteiro para a lista de url de sites que serao monitorados
+func mostrarSites(lista *[]string) {
+	fmt.Println("Mostrando lista de sites...")
+	fmt.Println(lista)
+}
+
+//Esta funcao serve para remover uma ou mais urls de sites da lista
+//Prametro: lista: Ponteiro para a lista de url de sites que serao monitorados
+func removerSites(lista *[]string) {
+	fmt.Println("Removendo sites da lista...")
+	if len(*lista) > 0 {
+
+		//Mostrando a lista de sites
+		for indice, url := range *lista {
+			fmt.Println("[", indice+1, "]", url)
+		}
+
+		//Perguntando qual deles o usuario
+		fmt.Print("Qual o numero da url deseja remover? ")
+		var indice int
+		fmt.Scan(&indice)
+		indice--
+
+		//Removendo a url da lista
+		*lista = append((*lista)[:indice], (*lista)[(indice+1):]...)
+	}
 }

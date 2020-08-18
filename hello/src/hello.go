@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 )
 
@@ -15,7 +16,7 @@ func main() {
 
 	switch comando {
 	case 1:
-		fmt.Println("Monitorando...")
+		iniciarMonitoramento()
 	case 2:
 		fmt.Println("Exibindo os logs...")
 	case 0:
@@ -49,4 +50,15 @@ func exibirMenu() {
 	fmt.Println("0 - Sair do programa")
 	fmt.Println("1 - Iniciar Monitoramento")
 	fmt.Println("2 - Exibir os logs")
+}
+
+//A funcao iniciarMonitoramento realiza o monitoramento do(s) site(s).
+func iniciarMonitoramento() {
+	fmt.Println("Monitorando...")
+	site := "https://henriquemcc101508968.wordpress.com"
+	resposta, erro := http.Get(site)
+
+	fmt.Println("Resposta:", resposta)
+	fmt.Println("Erro", erro)
+
 }

@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"strings"
@@ -10,6 +12,7 @@ import (
 
 var monitoramentos = 10
 var delay = 5 * time.Minute
+var nomeArquivoUrls = "urlsMonitoradas.txt"
 
 //Esta funcao eh a primeira funcao a ser executada pelo programa escrito em Go.
 func main() {
@@ -18,10 +21,11 @@ func main() {
 	exibirIntroducao()
 
 	//Criando a lista de urls
-	var listaDeUrlsDeSites []string
+	listaDeUrlsDeSites := lerUrlsDoArquivo()
 
 	//Executando o loop enquanto o comando for diferente de 0
-	for {
+	continuarloop := true
+	for continuarloop {
 
 		//Obtendo o comando do usuario
 		exibirMenu()
@@ -34,7 +38,7 @@ func main() {
 		//Sair do programa
 		case 0:
 			fmt.Println("Saindo do programa...")
-			os.Exit(0)
+			continuarloop = false
 
 		//Adicionando sites a lista
 		case 1:
@@ -69,6 +73,9 @@ func main() {
 		fmt.Println("")
 
 	}
+
+	//Salvando as urls no arquivo
+	salvarUrlsNoArquivo(listaDeUrlsDeSites)
 
 }
 
@@ -119,9 +126,13 @@ func iniciarMonitoramento(lista *[]string) {
 func monitorarSite(urlSite string) {
 	resposta, erro := http.Get(urlSite)
 
+	if erro != nil {
+		fmt.Println("Um erro ocorreu:", erro)
+		return
+	}
+
 	fmt.Println("URL:", urlSite)
 	fmt.Println("Resposta:", resposta)
-	fmt.Println("Erro", erro)
 }
 
 //Esta funcao serve para adicionar sites a lista de sites a serem monitorados
@@ -246,5 +257,45 @@ func alterarConfiguracoes() {
 			fmt.Println("Valor inválido! Tente novamente.")
 		}
 	}
+
+}
+
+//Esta funcao serve para ler as urls de um arquivo
+//Retorno: Um ponteiro para uma slice de strings
+func lerUrlsDoArquivo() []string {
+
+	//Criando a variavel de retorno
+	var urls []string
+
+	//Criando o arquivo
+	arquivo, erro := os.Open(nomeArquivoUrls)
+
+	if erro != nil {
+		fmt.Println("Um erro ocorreu:", erro)
+		return nil
+	}
+
+	//Criando um objeto para ler o arquivo
+	leitor := bufio.NewReader(arquivo)
+
+	//Lendo todo o conteudo do arquivo
+	for erro != io.EOF {
+
+		//Lendo uma linha do arquivo
+		var url string
+		url, erro = leitor.ReadString('\n')
+
+		//Removendo os espacos da linha e adicionando na slice
+		urls = append(urls, strings.TrimSpace(url))
+	}
+
+	arquivo.Close()
+
+	return urls
+}
+
+//Esta funcao serve para salvar as urls em um arquivo.
+//Parametro: lista: Lista de urls que serao salvas no arquivo.
+func salvarUrlsNoArquivo(lista []string) {
 
 }

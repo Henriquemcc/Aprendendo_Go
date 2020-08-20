@@ -111,12 +111,19 @@ func exibirMenu() {
 func iniciarMonitoramento(lista *[]string) {
 	fmt.Println("Monitorando...")
 
+	//Rodando testando os sites de acordo com o numero de vezes que serao testados
 	for indice := 0; indice < monitoramentos; indice++ {
+
+		//Imprimindo mensagem informando quanto de quanto foi executado
 		fmt.Println("Teste", indice+1, "de", monitoramentos)
+
+		//Realizando teste para cada site da lista
 		for _, url := range *lista {
 			monitorarSite(url)
 			fmt.Println("")
 		}
+
+		//Dando delay nos testes
 		time.Sleep(delay)
 		fmt.Println("")
 	}
@@ -125,26 +132,47 @@ func iniciarMonitoramento(lista *[]string) {
 //Esta funcao serve para realizar o monitoramento de um site.
 //Parametro: urlSite: Url do site a ser monitorado.
 func monitorarSite(urlSite string) {
+
+	//Realizando o get do site
 	resposta, erro := http.Get(urlSite)
 
+	//Verificando se nao ocorreu nenhum erro ao realizar o get
 	if erro != nil {
 		fmt.Println("Um erro ocorreu:", erro)
 		return
 	}
 
-	fmt.Println("URL:", urlSite)
-	fmt.Println("Resposta:", resposta)
+	//Imprimindo mensagem sobre qual site esta sendo testado
+	fmt.Println("Testando site:", urlSite)
 
+	//Verificando se o site esta online
 	online := resposta.StatusCode == 200
 
-	//Registrando o log do site
+	//Imprimindo mensagem de sucesso ou erro de acordo com o estado do site
+	if online {
+		fmt.Println("O site", urlSite, "testado com sucesso!")
+	} else {
+		fmt.Println("Não foi possivel acessar o site", urlSite)
+	}
+
+	//Imprimindo a resposta do site
+	fmt.Println("Resposta do site:")
+	fmt.Println("-------------------------")
+	fmt.Println(resposta)
+	fmt.Println("-------------------------")
+
+	//Registrando o status do site no arquivo log
 	registrarLog(urlSite, online, time.Now())
 }
 
 //Esta funcao serve para adicionar sites a lista de sites a serem monitorados
 //Parametro: lista: Ponteiro para a lista de url de sites que serao monitorados
 func adicionarSites(lista *[]string) {
+
+	//Exibindo mensagem de inicio do caso de uso
 	fmt.Println("Adicionando sites a lista...")
+
+	//Adicionando sites enquanto o usuario digitar sim
 	adicionarSites := true
 	for adicionarSites {
 
@@ -159,8 +187,12 @@ func adicionarSites(lista *[]string) {
 		fmt.Scan(&resposta)
 		resposta = strings.ToLower(resposta)
 		resposta = string(resposta[0])
+
+		//Permitindo ao usuario re-digitar o site caso ele esteja errado
 		if resposta != string('s') {
 			continue
+
+			//Adicionando o site a lista caso ele esteja correto
 		} else {
 
 			//Adicionando o site a lista
@@ -172,6 +204,8 @@ func adicionarSites(lista *[]string) {
 			fmt.Scan(&resposta)
 			resposta = strings.ToLower(resposta)
 			resposta = string(resposta[0])
+
+			//Terminando o loop caso o usuario nao deseje mais adicionar mais sites
 			if resposta != string('s') {
 				adicionarSites = false
 			}
@@ -182,14 +216,22 @@ func adicionarSites(lista *[]string) {
 //Esta funcao serve para mostrar todos os urls dos sites da lista
 //Parametro: lista: Ponteiro para a lista de url de sites que serao monitorados
 func mostrarSites(lista *[]string) {
+
+	//Exibindo mensagem de inicio de caso de uso
 	fmt.Println("Mostrando lista de sites...")
+
+	//Imprimindo a lista
 	fmt.Println(lista)
 }
 
 //Esta funcao serve para remover uma ou mais urls de sites da lista
 //Prametro: lista: Ponteiro para a lista de url de sites que serao monitorados
 func removerSites(lista *[]string) {
+
+	//Exibindo mensagem de inicio de caso de uso
 	fmt.Println("Removendo sites da lista...")
+
+	//Verificando se eh possivel remover algum site
 	if len(*lista) > 0 {
 
 		//Mostrando a lista de sites
@@ -210,25 +252,31 @@ func removerSites(lista *[]string) {
 
 //Esta funcao serve para alterar as configuracoes de monitoramento
 func alterarConfiguracoes() {
+
+	//Exibindo mensagem de inicio de caso de uso
 	fmt.Println("Alterando configurações de monitoramento...")
 
 	//Obtendo o tempo de delay
 	fmt.Println("Tempo de delay: ")
 
 	//Valor do tempo de delay
-	var valor int = 0
-	for valor <= 0 {
+	var valor int = -1
+	for valor < 0 {
+
+		//Obtendo o valor
 		fmt.Print("Valor: ")
 		fmt.Scan(&valor)
 
-		if valor <= 0 {
+		//Imprimindo mensagem de valor invalido
+		if valor < 0 {
 			fmt.Println("Valor inválido!. Tente novamente.")
 		}
 	}
 
 	//Unidade do tempo de delay
 	delay = time.Duration(0)
-	for delay == 0 {
+	unidadeDeTempoDefinida := false
+	for !unidadeDeTempoDefinida {
 		var unidadeTempo string
 		fmt.Print("Unidade de tempo (nanosegundos/microsegundos/milisegundos/segundos/minutos/horas) : ")
 		fmt.Scan(&unidadeTempo)
@@ -238,27 +286,34 @@ func alterarConfiguracoes() {
 		//Calculando a unidade de tempo
 		if unidadeTempo == "nan" {
 			delay = time.Nanosecond * time.Duration(valor)
+			unidadeDeTempoDefinida = true
 		} else if unidadeTempo == "mic" {
 			delay = time.Microsecond * time.Duration(valor)
+			unidadeDeTempoDefinida = true
 		} else if unidadeTempo == "mil" {
 			delay = time.Millisecond * time.Duration(valor)
+			unidadeDeTempoDefinida = true
 		} else if unidadeTempo == "seg" {
 			delay = time.Second * time.Duration(valor)
+			unidadeDeTempoDefinida = true
 		} else if unidadeTempo == "min" {
 			delay = time.Minute * time.Duration(valor)
+			unidadeDeTempoDefinida = true
 		} else if unidadeTempo == "hor" {
 			delay = time.Hour * time.Duration(valor)
+			unidadeDeTempoDefinida = true
 		} else {
 			fmt.Println("Unidade de tempo invalida! Tente novamente.")
 		}
 	}
 
-	//Quantidade de monitoramentos
+	//Obtendo a Quantidade de monitoramentos que deverao ser feitos
 	monitoramentos = 0
 	for monitoramentos <= 0 {
 		fmt.Print("Quantidade de vezes que o(s) site(s) deve(m) ser monitorado(s): ")
 		fmt.Scan(&monitoramentos)
 
+		//Imprimindo mensagem de valor invalido
 		if monitoramentos <= 0 {
 			fmt.Println("Valor inválido! Tente novamente.")
 		}
@@ -276,6 +331,7 @@ func lerUrlsDoArquivo() []string {
 	//Criando o arquivo
 	arquivo, erro := os.OpenFile(nomeArquivoUrls, os.O_RDONLY|os.O_CREATE, 0666)
 
+	//Verificando se nenhum erro ocorreu ao abrir o arquivo
 	if erro != nil {
 		fmt.Println("Um erro ocorreu:", erro)
 		return nil
@@ -298,6 +354,7 @@ func lerUrlsDoArquivo() []string {
 	//Fechando o arquivo
 	arquivo.Close()
 
+	//Retornando a lista das urls
 	return urls
 }
 
@@ -346,12 +403,14 @@ func registrarLog(site string, status bool, horario time.Time) {
 		return
 	}
 
+	//Escrevendo no arquivo de acordo com o status do site
 	if status {
-		_, erro = arquivo.WriteString(horario.String() + "\t" + site + "\tonline\n")
+		_, erro = arquivo.WriteString(horario.String() + "\t-\t" + site + "\t\tonline\n")
 	} else {
-		_, erro = arquivo.WriteString(horario.String() + "\t" + site + "\toffline\n")
+		_, erro = arquivo.WriteString(horario.String() + "\t-\t" + site + "\t\toffline\n")
 	}
 
+	//Verificando se houve erro ao escrever
 	if erro != nil {
 		fmt.Println("Um erro ocorreu:", erro)
 	}

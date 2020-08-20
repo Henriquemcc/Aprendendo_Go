@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"strings"
@@ -63,9 +64,7 @@ func main() {
 
 		//Mostrar os logs
 		case 6:
-
-		//Carregar lista a partir de um arquivo
-		case 7:
+			imprimirLogs()
 
 		default:
 			fmt.Println("Comando Inválido!")
@@ -104,6 +103,7 @@ func exibirMenu() {
 	fmt.Println("3 - Remover sites da lista de sites monitorados.")
 	fmt.Println("4 - Iniciar o monitoramento.")
 	fmt.Println("5 - Alterar configurações de monitoramento.")
+	fmt.Println("6 - Imprimir logs.")
 }
 
 //Esta funcao serve para realizar o monitoramento do(s) site(s).
@@ -405,9 +405,9 @@ func registrarLog(site string, status bool, horario time.Time) {
 
 	//Escrevendo no arquivo de acordo com o status do site
 	if status {
-		_, erro = arquivo.WriteString(horario.String() + "\t-\t" + site + "\t\tonline\n")
+		_, erro = arquivo.WriteString(horario.Format("02/01/2006 15:04:05") + "\t-\t" + site + "\t-\t[online]\n")
 	} else {
-		_, erro = arquivo.WriteString(horario.String() + "\t-\t" + site + "\t\toffline\n")
+		_, erro = arquivo.WriteString(horario.Format("02/01/2006 15:04:05") + "\t-\t" + site + "\t-\t[offline]\n")
 	}
 
 	//Verificando se houve erro ao escrever
@@ -417,4 +417,19 @@ func registrarLog(site string, status bool, horario time.Time) {
 
 	//Fechando o arquivo
 	arquivo.Close()
+}
+
+//Esta funcao serve para exibir na tela os logs dos sites monitorados.
+func imprimirLogs() {
+
+	//Lendo o arquivo
+	dadosArquivo, erro := ioutil.ReadFile(nomeArquivoLogs)
+
+	//Verificando se houve erro ao abrir o arquivo
+	if erro != nil {
+		fmt.Println("Um erro ocorreu:", erro)
+		return
+	}
+
+	fmt.Println(string(dadosArquivo))
 }

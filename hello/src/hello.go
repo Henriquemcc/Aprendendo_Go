@@ -169,7 +169,7 @@ func monitorarSite(urlSite string) {
 //Parametro: lista: Ponteiro para a lista de url de sites que serao monitorados
 func adicionarSites(lista *[]string) {
 
-	//Exibindo mensagem de inicio do caso de uso
+	//Exibindo mensagem de do caso de uso
 	fmt.Println("Adicionando sites a lista...")
 
 	//Adicionando sites enquanto o usuario digitar sim
@@ -228,7 +228,7 @@ func mostrarSites(lista *[]string) {
 //Prametro: lista: Ponteiro para a lista de url de sites que serao monitorados
 func removerSites(lista *[]string) {
 
-	//Exibindo mensagem de inicio de caso de uso
+	//Exibindo mensagem de caso de uso
 	fmt.Println("Removendo sites da lista...")
 
 	//Verificando se eh possivel remover algum site
@@ -253,7 +253,7 @@ func removerSites(lista *[]string) {
 //Esta funcao serve para alterar as configuracoes de monitoramento
 func alterarConfiguracoes() {
 
-	//Exibindo mensagem de inicio de caso de uso
+	//Exibindo mensagem de caso de uso
 	fmt.Println("Alterando configurações de monitoramento...")
 
 	//Obtendo o tempo de delay
@@ -421,6 +421,9 @@ func registrarLog(site string, status bool, horario time.Time) {
 
 //Esta funcao serve para exibir na tela os logs dos sites monitorados.
 func imprimirLogs() {
+
+	//Exibindo mensagem de caso de uso
+	fmt.Println("Imprimindo o arquivo de logs...")
 
 	//Lendo o arquivo
 	dadosArquivo, erro := ioutil.ReadFile(nomeArquivoLogs)

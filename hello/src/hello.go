@@ -431,5 +431,6 @@ func imprimirLogs() {
 		return
 	}
 
+	//Imprimindo os dados do arquivo de logs
 	fmt.Println(string(dadosArquivo))
 }

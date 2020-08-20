@@ -13,6 +13,7 @@ import (
 var monitoramentos = 10
 var delay = 5 * time.Minute
 var nomeArquivoUrls = "urlsMonitoradas.txt"
+var nomeArquivoLogs = "logs.txt"
 
 //Esta funcao eh a primeira funcao a ser executada pelo programa escrito em Go.
 func main() {
@@ -133,6 +134,11 @@ func monitorarSite(urlSite string) {
 
 	fmt.Println("URL:", urlSite)
 	fmt.Println("Resposta:", resposta)
+
+	online := resposta.StatusCode == 200
+
+	//Registrando o log do site
+	registrarLog(urlSite, online, time.Now())
 }
 
 //Esta funcao serve para adicionar sites a lista de sites a serem monitorados
@@ -268,7 +274,7 @@ func lerUrlsDoArquivo() []string {
 	var urls []string
 
 	//Criando o arquivo
-	arquivo, erro := os.Open(nomeArquivoUrls)
+	arquivo, erro := os.OpenFile(nomeArquivoUrls, os.O_RDONLY|os.O_CREATE, 0666)
 
 	if erro != nil {
 		fmt.Println("Um erro ocorreu:", erro)
@@ -289,6 +295,7 @@ func lerUrlsDoArquivo() []string {
 		urls = append(urls, strings.TrimSpace(url))
 	}
 
+	//Fechando o arquivo
 	arquivo.Close()
 
 	return urls
@@ -298,4 +305,57 @@ func lerUrlsDoArquivo() []string {
 //Parametro: lista: Lista de urls que serao salvas no arquivo.
 func salvarUrlsNoArquivo(lista []string) {
 
+	//Abrindo o arquivo
+	arquivo, erro := os.OpenFile(nomeArquivoUrls, os.O_WRONLY|os.O_CREATE, 0666)
+
+	//Verificando se houve erro ao abrir o arquivo
+	if erro != nil {
+		fmt.Println("Um erro ocorreu:", erro)
+		return
+	}
+
+	//Salvando as urls no arquivo
+	for _, url := range lista {
+
+		//Salvando a url no arquivo
+		_, erro = arquivo.WriteString(url + "\n")
+
+		//Verificando se algum erro ocorreu
+		if erro != nil {
+			fmt.Println("Um erro ocorreu:", erro)
+		}
+	}
+
+	//Fechando o arquivo
+	arquivo.Close()
+
+}
+
+//Esta funcao serve para salvar o log do status de um site no arquivo
+//Parametro: site: Url do site que foi testado
+//Parametro: status: Status do site: true = online, false = offline.
+//Parametro: horario: Horario em que o site foi testado
+func registrarLog(site string, status bool, horario time.Time) {
+
+	//Abrindo o arquivo
+	arquivo, erro := os.OpenFile(nomeArquivoLogs, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+
+	//Verificando se houve erro ao abrir o arquivo
+	if erro != nil {
+		fmt.Println("Um erro ocorreu:", erro)
+		return
+	}
+
+	if status {
+		_, erro = arquivo.WriteString(horario.String() + "\t" + site + "\tonline\n")
+	} else {
+		_, erro = arquivo.WriteString(horario.String() + "\t" + site + "\toffline\n")
+	}
+
+	if erro != nil {
+		fmt.Println("Um erro ocorreu:", erro)
+	}
+
+	//Fechando o arquivo
+	arquivo.Close()
 }

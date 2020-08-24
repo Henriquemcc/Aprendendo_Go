@@ -53,7 +53,7 @@ func (c *contaCorrente) Depositar(valorDoDeposito float64) (bool, string, float6
 //Retorno: bool: Valor booleano indicando se o transferencia ocorreu com sucesso.
 //Retorno: string: Mensagem de erro, caso tenha ocorrido algum erro durante a transferencia.
 //Retorno: float64: Novo valor da saldo da conta de quem transferiu dinheiro.
-func (c *contaCorrente) transferir(valorDaTransferencia float64, contaDestino *contaCorrente) (bool, string, float64) {
+func (c *contaCorrente) Transferir(valorDaTransferencia float64, contaDestino *contaCorrente) (bool, string, float64) {
 	podeTransferir, _, _ := c.Sacar(valorDaTransferencia)
 	var mensagemDeErro string
 
@@ -116,15 +116,15 @@ func main() {
 	fmt.Println("Saldo da conta do", contaDoJoao.titular, ":", contaDoJoao.saldo)
 
 	//Realizando transferencia entre a conta do Ze e a do Joao
-	sucesso, mensagemDeErro, novoSaldo = contaDoZe.transferir(500, &contaDoJoao)
+	sucesso, mensagemDeErro, novoSaldo = contaDoZe.Transferir(500, &contaDoJoao)
 	fmt.Println("Transferencia da conta do", contaDoZe.titular, "para a conta do", contaDoJoao.titular, "realizado com sucesso:", sucesso, mensagemDeErro, ". Novo valor do saldo da conta do", contaDoZe.titular, ":", novoSaldo)
 
 	//Realizando transferencia entre a conta do Ze e a do Joao
-	sucesso, mensagemDeErro, novoSaldo = contaDoZe.transferir(9999999999, &contaDoJoao)
+	sucesso, mensagemDeErro, novoSaldo = contaDoZe.Transferir(9999999999, &contaDoJoao)
 	fmt.Println("Transferencia da conta do", contaDoZe.titular, "para a conta do", contaDoJoao.titular, "realizado com sucesso:", sucesso, mensagemDeErro, ". Novo valor do saldo da conta do", contaDoZe.titular, ":", novoSaldo)
 
 	//Realizando transferencia entre a conta do Ze e a do Joao
-	sucesso, mensagemDeErro, novoSaldo = contaDoZe.transferir(-20, &contaDoJoao)
+	sucesso, mensagemDeErro, novoSaldo = contaDoZe.Transferir(-20, &contaDoJoao)
 	fmt.Println("Transferencia da conta do", contaDoZe.titular, "para a conta do", contaDoJoao.titular, "realizado com sucesso:", sucesso, mensagemDeErro, ". Novo valor do saldo da conta do", contaDoZe.titular, ":", novoSaldo)
 
 	//Imprimindo as contas do Ze e do Joao

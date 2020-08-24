@@ -48,6 +48,26 @@ func (c *contaCorrente) Depositar(valorDoDeposito float64) (bool, string, float6
 	return podeDepositar, mensagemDeErro, c.saldo
 }
 
+//Este metodo serve para realizar a transferencia entre contas correntes.
+//Parametro: valorDaTransferencia: Valor da quantidade de dinheiro que sera transferida de uma conta para outra.
+//Retorno: bool: Valor booleano indicando se o transferencia ocorreu com sucesso.
+//Retorno: string: Mensagem de erro, caso tenha ocorrido algum erro durante a transferencia.
+//Retorno: float64: Novo valor da saldo da conta de quem transferiu dinheiro.
+func (c *contaCorrente) transferir(valorDaTransferencia float64, contaDestino *contaCorrente) (bool, string, float64) {
+	podeTransferir, _, _ := c.Sacar(valorDaTransferencia)
+	var mensagemDeErro string
+
+	if podeTransferir {
+		contaDestino.Depositar(valorDaTransferencia)
+	} else if valorDaTransferencia < 0 {
+		mensagemDeErro = "O valor da transferencia não pode ser menor que zero."
+	} else if valorDaTransferencia > c.saldo {
+		mensagemDeErro = "O valor da transferencia não pode ser maior que o saldo da conta."
+	}
+
+	return podeTransferir, mensagemDeErro, c.saldo
+}
+
 //Este metodo eh o metodo principal, onde o programa comeca a ser executado
 func main() {
 
@@ -94,6 +114,18 @@ func main() {
 
 	//Imprimindo o saldo da conta do Joao
 	fmt.Println("Saldo da conta do", contaDoJoao.titular, ":", contaDoJoao.saldo)
+
+	//Realizando transferencia entre a conta do Ze e a do Joao
+	sucesso, mensagemDeErro, novoSaldo = contaDoZe.transferir(500, &contaDoJoao)
+	fmt.Println("Transferencia da conta do", contaDoZe.titular, "para a conta do", contaDoJoao.titular, "realizado com sucesso:", sucesso, mensagemDeErro, ". Novo valor do saldo da conta do", contaDoZe.titular, ":", novoSaldo)
+
+	//Realizando transferencia entre a conta do Ze e a do Joao
+	sucesso, mensagemDeErro, novoSaldo = contaDoZe.transferir(9999999999, &contaDoJoao)
+	fmt.Println("Transferencia da conta do", contaDoZe.titular, "para a conta do", contaDoJoao.titular, "realizado com sucesso:", sucesso, mensagemDeErro, ". Novo valor do saldo da conta do", contaDoZe.titular, ":", novoSaldo)
+
+	//Realizando transferencia entre a conta do Ze e a do Joao
+	sucesso, mensagemDeErro, novoSaldo = contaDoZe.transferir(-20, &contaDoJoao)
+	fmt.Println("Transferencia da conta do", contaDoZe.titular, "para a conta do", contaDoJoao.titular, "realizado com sucesso:", sucesso, mensagemDeErro, ". Novo valor do saldo da conta do", contaDoZe.titular, ":", novoSaldo)
 
 	//Imprimindo as contas do Ze e do Joao
 	fmt.Println(contaDoZe)

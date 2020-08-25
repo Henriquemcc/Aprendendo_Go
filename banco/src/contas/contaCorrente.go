@@ -109,9 +109,3 @@ func (c *ContaCorrente) SetNumeroConta(numeroConta int) {
 func (c *ContaCorrente) GetSaldo() float64 {
 	return c.saldo
 }
-
-//SetSaldo serve para alterar o valor do saldo da conta corrente.
-//Parametro: saldo: Novo valor para o saldo da conta.
-func (c *ContaCorrente) SetSaldo(saldo float64) {
-	c.saldo = saldo
-}

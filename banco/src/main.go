@@ -35,7 +35,7 @@ func main() {
 	//Criando uma conta corrente para o Ze
 	contaDoZe := contas.ContaCorrente{}
 	contaDoZe.SetTitular(&ze)
-	contaDoZe.SetSaldo(134217)
+	contaDoZe.Depositar(134217)
 
 	//Imprimindo o saldo da conta do ze
 	fmt.Println("Saldo da conta do", ze.GetNome(), ":", contaDoZe.GetSaldo())
@@ -57,7 +57,7 @@ func main() {
 	//Criando uma conta corrente para o personagem ficticio chamado Joao da Silva
 	contaDoJoao := contas.ContaCorrente{}
 	contaDoJoao.SetTitular(&joao)
-	contaDoJoao.SetSaldo(1024)
+	contaDoJoao.Depositar(1024)
 
 	//Imprimindo o saldo da conta do Joao
 	fmt.Println("Saldo da conta do", joao.GetNome(), ":", contaDoJoao.GetSaldo())

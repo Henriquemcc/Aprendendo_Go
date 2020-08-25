@@ -1,8 +1,10 @@
 package contas
 
+import "banco/clientes"
+
 //ContaCorrente serve para guardar os dados da conta corrente do usuario.
 type ContaCorrente struct {
-	titular       string
+	titular       *clientes.Titular
 	numeroAgencia int
 	numeroConta   int
 	saldo         float64
@@ -66,15 +68,15 @@ func (c *ContaCorrente) Transferir(valorDaTransferencia float64, contaDestino *C
 	return podeTransferir, mensagemDeErro, c.saldo
 }
 
-//GetTitular serve para obter o nome do titular da conta corrente.
-//Retorno: string: Nome do titular da conta.
-func (c *ContaCorrente) GetTitular() string {
+//GetTitular serve para obter a instancia da struct titular da conta corrente.
+//Retorno: Titular: Uma instancia da struct titular.
+func (c *ContaCorrente) GetTitular() *clientes.Titular {
 	return c.titular
 }
 
-//SetTitular serve para alterar o nome do titular da conta corrente.
-//Parametro: titular: Novo valor para o nome do titular da conta.
-func (c *ContaCorrente) SetTitular(titular string) {
+//SetTitular serve para alterar a instancia da struct titular da conta corrente.
+//Parametro: titular: uma outra instancia da struct titular.
+func (c *ContaCorrente) SetTitular(titular *clientes.Titular) {
 	c.titular = titular
 }
 

@@ -152,6 +152,22 @@ func (t *Titular) SetEmail(email string) (bool, string) {
 
 }
 
+//ToString serve para gerar uma string com os dados do Titular.
+//Retorno: string: String com os dados do titular.
+func (t *Titular) ToString() string {
+	mensagem := "Titular:" + "\n"
+	mensagem += "Nome: " + t.GetNome() + "\n"
+	mensagem += "Sobrenome: " + t.GetSobrenome() + "\n"
+	mensagem += "CPF: " + t.GetCpf() + "\n"
+	mensagem += "Profissão: " + t.GetProfissao() + "\n"
+	dataDeNascimento := t.GetDataDeNascimento()
+	mensagem += "Data de nascimento: " + dataDeNascimento.Format("02/01/2006") + "\n"
+	mensagem += "Telefone: " + t.GetTelefone() + "\n"
+	mensagem += "Email: " + t.GetEmail() + "\n"
+
+	return mensagem
+}
+
 //cpfEhValido serve para verificar se um cpf eh valido.
 //Parametro: cpf: cpf (somente numero) que sera verificado se eh valido.
 //Retorno: bool: Valor booleano indicando se o cpf eh valido.

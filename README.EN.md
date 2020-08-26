@@ -12,6 +12,8 @@ Go: Iniciando com a linguagem do Google (Repository is not available).
 
 [Go: Orientação a Objetos](https://github.com/alura-cursos/go_oo).
 
+[Go: Fundamentos de uma aplicação web](https://github.com/alura-cursos/web_com_golang).
+
 ## Courses
 
 The courses in which these programs were developed were:
@@ -19,3 +21,5 @@ The courses in which these programs were developed were:
 [Go: Iniciando com a linguagem do Google](https://cursos.alura.com.br/course/golang).
 
 [Go: Orientação a Objetos](https://cursos.alura.com.br/course/go-lang-oo).
+
+[Go: Fundamentos de uma aplicação web](https://cursos.alura.com.br/course/go-lang-web).

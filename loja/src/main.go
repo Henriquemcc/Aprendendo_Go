@@ -1,9 +1,9 @@
 package main
 
 import (
-	"bufio"
 	"database/sql"
 	"fmt"
+	"io/ioutil"
 	"loja/produtos"
 	"net/http"
 	"os"
@@ -20,8 +20,6 @@ var templateDaAplicacaoWeb = template.Must(template.ParseGlob("templates/*.html"
 
 //Esta funcao eh a funcao principal, onde o programa comeca a ser executado.
 func main() {
-	bd := ConectarComBancoDeDados(ObterCredenciaisDeAcessoAoBancoDeDados(nomeArquivoCredencialBancoDeDados))
-	defer bd.Close()
 	http.HandleFunc("/", index)
 	http.ListenAndServe(":8000", nil)
 }
@@ -31,51 +29,61 @@ func main() {
 //Parametro: r: Instancia da struct request, que representa uma requisicao recebida pelo servidor ou enviada pelo cliente.
 func index(w http.ResponseWriter, r *http.Request) {
 
-	//Criando uma lista de produtos
-	var listaDeProdutos []produtos.Produto
+	//Conectando com o banco de dados
+	bd := ConectarComBancoDeDados(ObterCredenciaisDeAcessoAoBancoDeDados(nomeArquivoCredencialBancoDeDados))
 
-	//Criando o primeiro produto e adicionando a lista
-	camiseta := produtos.Produto{}
-	camiseta.SetNome("Camiseta")
-	camiseta.SetDescricao("Azul")
-	camiseta.SetPreco(20.00)
-	camiseta.SetQuantidade(5)
-	listaDeProdutos = append(listaDeProdutos, camiseta)
+	//Obtendo todos os produtos do banco de dados
+	selecaoDeTodosProdutos, erro := bd.Query("select * from produtos")
 
-	//Criando o segundo produto e adicionando a lista
-	computadorGamer := produtos.Produto{}
-	computadorGamer.SetNome("Computador Gamer")
-	computadorGamer.SetDescricao("Computador Gamer Poderoso")
-	computadorGamer.SetPreco(30000.00)
-	computadorGamer.SetQuantidade(5)
-	listaDeProdutos = append(listaDeProdutos, computadorGamer)
+	//Abortando o programa caso algum erro ocorra
+	if erro != nil {
+		fmt.Println("Erro ao conectar com o banco de dados:", erro)
+		os.Exit(-1)
+	}
 
-	//Criando o terceiro produto e adicionando a lista
-	videoGame := produtos.Produto{}
-	videoGame.SetNome("Video game")
-	videoGame.SetDescricao("Console de video game com 2TB de SSD.")
-	videoGame.SetPreco(8000.00)
-	videoGame.SetQuantidade(8)
-	listaDeProdutos = append(listaDeProdutos, videoGame)
+	listaDeProdutos := []produtos.Produto{}
 
-	//Criando o quarto produto e adicionando a lista
-	smartphone := produtos.Produto{}
-	smartphone.SetNome("Smartphone")
-	smartphone.SetDescricao("Smartphone com Android 11.")
-	smartphone.SetPreco(5000.00)
-	smartphone.SetQuantidade(12)
-	listaDeProdutos = append(listaDeProdutos, smartphone)
+	for selecaoDeTodosProdutos.Next() {
 
-	//Criando o quinto produto e adicionando a lista
-	roteador := produtos.Produto{}
-	roteador.SetNome("Roteador WiFi")
-	roteador.SetDescricao("Roteador Wifi Mesh Dual Band 2,4Ghz e 5Ghz")
-	roteador.SetPreco(2000.0)
-	roteador.SetQuantidade(6)
-	listaDeProdutos = append(listaDeProdutos, roteador)
+		//Criando as variaveis que irao receber os valores do banco de dados
+		var id, quantidade int
+		var nome, descricao string
+		var preco float64
+
+		//Lendo os dados do banco de dados
+		erro = selecaoDeTodosProdutos.Scan(&id, &nome, &descricao, &preco, &quantidade)
+
+		//Caso algum erro acontecer o programa ira abortar
+		if erro != nil {
+			fmt.Println("Erro ao obter os dados do banco de dados:", erro)
+			os.Exit(-1)
+		}
+
+		//Criando uma instancia de produto
+		produto := produtos.Produto{}
+
+		//Adicionando os dados lidos do banco de dados a instancia da struct Produto
+		produto.SetID(id)
+		produto.SetNome(nome)
+		produto.SetDescricao(descricao)
+		produto.SetPreco(preco)
+		produto.SetQuantidade(quantidade)
+
+		//Adicionando a instancia da struct Produto a slice de produtos
+		listaDeProdutos = append(listaDeProdutos, produto)
+
+	}
 
 	//Executando aplicacao web
 	templateDaAplicacaoWeb.ExecuteTemplate(w, "Index", listaDeProdutos)
+
+	//Fechando a conexao com o banco de dados
+	erro = bd.Close()
+
+	if erro != nil {
+		fmt.Println("Um erro ocorreu ao tentar fechar a conexao com o banco de dados:", erro)
+		os.Exit(-1)
+	}
 }
 
 //ObterCredenciaisDeAcessoAoBancoDeDados serve para obter as credenciais de acesso ao banco de dados de um arquivo.
@@ -86,41 +94,35 @@ func index(w http.ResponseWriter, r *http.Request) {
 //Retorno: string: Host do banco de dados.
 //Retorno: string: Modo de configuracao do protocolo SSL do banco de dados.
 func ObterCredenciaisDeAcessoAoBancoDeDados(nomeArquivo string) (string, string, string, string, string) {
-	//Abrindo o arquivo que contem as credenciais de acesso ao banco de dados Postgre SQL
-	arquivo, erro := os.Open(nomeArquivo)
 
-	//Exibindo mensagem de erro e abortando programa caso nao seja possivel ler o arquivo de credenciais do banco de dados
+	//Lendo todos os dados do arquivo
+	d, erro := ioutil.ReadFile(nomeArquivo)
+
+	//Abortando a execucao do programa caso algum erro ocorra
 	if erro != nil {
-		fmt.Println("Um erro ocorreu:", erro)
+		fmt.Println("Um erro ocorreu ao ler os dados do arquivo de credenciais:", erro)
 		os.Exit(-1)
 	}
 
-	//Criando um novo objeto para ler o arquivo
-	leitor := bufio.NewReader(arquivo)
+	//Convertendo os bytes em string e separando os dados lidos
+	dadosArquivo := strings.Split(string(d), "\n")
 
-	//Lendo o nome de usuario
-	nomeUsuario, erro := leitor.ReadString('\n')
-	nomeUsuario = strings.TrimSpace(nomeUsuario)
+	//Obtendo o nome de usuario
+	nomeUsuario := dadosArquivo[0]
 
-	//Lendo o nome do banco de dados
-	nomeBancoDeDados, erro := leitor.ReadString('\n')
-	nomeBancoDeDados = strings.TrimSpace(nomeBancoDeDados)
+	//Obtendo o nome do banco de dados
+	nomeBancoDeDados := dadosArquivo[1]
 
-	//Lendo a senha do banco de dados
-	senha, erro := leitor.ReadString('\n')
-	senha = strings.TrimSpace(senha)
+	//Obtendo a senha do banco de dados
+	senha := dadosArquivo[2]
 
-	//Lendo o host do banco de dados
-	host, erro := leitor.ReadString('\n')
-	host = strings.TrimSpace(host)
+	//Obtendo o host do banco de dados
+	host := dadosArquivo[3]
 
-	//Lendo o modo ssl do banco de dados
-	ssl, erro := leitor.ReadString('\n')
-	ssl = strings.TrimSpace(ssl)
+	//Obtendo o modo de ssl do banco de dados
+	ssl := dadosArquivo[4]
 
-	//Fechando o arquivo
-	arquivo.Close()
-
+	//Retornando as credenciais
 	return nomeUsuario, nomeBancoDeDados, senha, host, ssl
 }
 
@@ -134,14 +136,15 @@ func ObterCredenciaisDeAcessoAoBancoDeDados(nomeArquivo string) (string, string,
 func ConectarComBancoDeDados(nomeUsuario, nomeBancoDeDados, senha, host, ssl string) *sql.DB {
 
 	//Criando a string para a conecao com o banco de dados
-	conexao := "user=" + nomeUsuario + "dbname=" + nomeBancoDeDados + "password=" + senha + "host=" + host + "sslmode=" + ssl
+	conexao := "user=" + nomeUsuario + " dbname=" + nomeBancoDeDados + " password=" + senha + " host=" + host + " sslmode=" + ssl
 
 	//Abrindo a conecao com o banco de dados
 	bd, erro := sql.Open("postgres", conexao)
 
 	//Caso algum erro tenha ocorrido o programa ira abortar
 	if erro != nil {
-		panic(erro.Error)
+		fmt.Println("Um erro ocorreu ao conectar com o banco de dados:", erro)
+		os.Exit(-1)
 	}
 
 	//Retornando ponteiro de conexao com o banco de dados

@@ -4,6 +4,7 @@ import "strings"
 
 //Produto serve para guardar os dados de um produto.
 type Produto struct {
+	id         int
 	nome       string
 	descricao  string
 	preco      float64
@@ -88,4 +89,16 @@ func (p *Produto) SetQuantidade(quantidade int) (bool, string) {
 	}
 
 	return quantidadeEhValida, mensagemDeErro
+}
+
+//GetID serve para obter o valor do id do produto.
+//Retorno: int: Valor do id do produto.s
+func (p *Produto) GetID() int {
+	return p.id
+}
+
+//SetID serve para alterar  valor do id do produto.
+//Parametro: id: Novo valor para o id do produto.
+func (p *Produto) SetID(id int) {
+	p.id = id
 }

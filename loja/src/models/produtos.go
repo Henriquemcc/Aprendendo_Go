@@ -1,7 +1,6 @@
 package models
 
 import (
-	"database/sql"
 	"fmt"
 	"loja/db"
 	"os"
@@ -109,10 +108,12 @@ func (p *Produto) SetID(id int) {
 	p.id = id
 }
 
-//BuscarTodosProdutosDB serve para buscar todos os produtos armazenados no banco de dados.
-//Parametro: db: Um ponteiro para a conexao com o banco de dados.
+//BuscarTodosProdutos serve para buscar todos os produtos armazenados no banco de dados.
 //Retorno: []models.Produto: Lista de produtos armazenados no banco de dados.
-func BuscarTodosProdutosDB(db *sql.DB) []Produto {
+func BuscarTodosProdutos() []Produto {
+
+	//Conectando com o banco de dados
+	db := db.ConectarComBancoDeDados(db.ObterCredenciaisDeAcessoAoBancoDeDados(db.NomeArquivoCredencialBancoDeDados))
 
 	//Criando uma slice de produtos
 	listaDeProdutos := []Produto{}
@@ -157,23 +158,8 @@ func BuscarTodosProdutosDB(db *sql.DB) []Produto {
 		listaDeProdutos = append(listaDeProdutos, produto)
 	}
 
-	defer db.Close()
-
-	return listaDeProdutos
-}
-
-//BuscarTodosProdutos serve para conectar com o banco de dados e obter uma lista com todos os produtos.
-//Retorno: []Produto: Lista com todos os produtos recuperados do banco de dados.
-func BuscarTodosProdutos() []Produto {
-
-	//Conectando com o banco de dados
-	db := db.ConectarComBancoDeDados(db.ObterCredenciaisDeAcessoAoBancoDeDados(db.NomeArquivoCredencialBancoDeDados))
-
-	//Buscando todos os produtos
-	listaDeProdutos := BuscarTodosProdutosDB(db)
-
 	//Fechando a conexao com o banco de dados
-	erro := db.Close()
+	erro = db.Close()
 
 	//Caso algum erro ocorra ao fechar a conexao, o programa sera abortado
 	if erro != nil {
@@ -182,4 +168,28 @@ func BuscarTodosProdutos() []Produto {
 	}
 
 	return listaDeProdutos
+}
+
+//CriarNovoProduto serve para conectar ao banco de dados e adicionar um produto no banco de dados
+func CriarNovoProduto(nome string, descricao string, preco float64, quantidade int) {
+
+	//Conectndo com o banco de dados
+	db := db.ConectarComBancoDeDados(db.ObterCredenciaisDeAcessoAoBancoDeDados(db.NomeArquivoCredencialBancoDeDados))
+
+	inserirDadosNoBancoDeDados, erro := db.Prepare("insert into produtos(nome, descricao, preco, quantidade) values($1, $2, $3, $4)")
+
+	if erro != nil {
+		panic(erro.Error)
+	}
+
+	inserirDadosNoBancoDeDados.Exec(nome, descricao, preco, quantidade)
+
+	//Fechando a conexao com o banco de dados
+	erro = db.Close()
+
+	//Caso algum erro ocorra ao fechar a conexao, o programa sera abortado
+	if erro != nil {
+		fmt.Println("Um erro ocorreu ao tentar fechar a conexao com o banco de dados:", erro)
+		os.Exit(-1)
+	}
 }

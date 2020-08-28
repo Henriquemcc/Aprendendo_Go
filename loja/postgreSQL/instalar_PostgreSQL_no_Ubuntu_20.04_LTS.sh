@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#Baixando e instalando pre-requisitos
+sudo apt-get install apt apt-transport-https wget curl -y;
+
 #Adicionando os repositorios do PostgreSQL e do pgAdmin
 sudo sh -c 'echo "deb [arch=amd64] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
 sudo sh -c 'echo "deb [arch=amd64] https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/$(lsb_release -cs) pgadmin4 main" > /etc/apt/sources.list.d/pgadmin4.list && apt update'

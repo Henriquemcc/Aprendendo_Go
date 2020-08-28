@@ -144,8 +144,14 @@ func BuscarTodosProdutosDB(db *sql.DB) []Produto {
 		produto.SetID(id)
 		produto.SetNome(nome)
 		produto.SetDescricao(descricao)
-		produto.SetPreco(preco)
-		produto.SetQuantidade(quantidade)
+		erroBool, mensagemDeErro := produto.SetPreco(preco)
+		if !erroBool {
+			fmt.Println(mensagemDeErro)
+		}
+		erroBool, mensagemDeErro = produto.SetQuantidade(quantidade)
+		if !erroBool {
+			fmt.Println(mensagemDeErro)
+		}
 
 		//Adicionando a instancia da struct Produto a slice de produtos
 		listaDeProdutos = append(listaDeProdutos, produto)

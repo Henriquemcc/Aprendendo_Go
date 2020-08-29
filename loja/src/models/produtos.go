@@ -3,7 +3,6 @@ package models
 import (
 	"fmt"
 	"loja/db"
-	"os"
 	"strings"
 )
 
@@ -132,10 +131,9 @@ func BuscarTodosProdutos() []Produto {
 		//Lendo os dados do banco de dados
 		erro = todosProdutos.Scan(&id, &nome, &descricao, &preco, &quantidade)
 
-		//Caso algum erro acontecer o programa ira abortar
+		//Caso algum erro acontecer o erro sera exibido
 		if erro != nil {
-			fmt.Println("Erro ao obter os dados do banco de dados:", erro)
-			os.Exit(-1)
+			panic(erro.Error)
 		}
 
 		//Criando uma instancia de produto
@@ -146,10 +144,14 @@ func BuscarTodosProdutos() []Produto {
 		produto.SetNome(nome)
 		produto.SetDescricao(descricao)
 		erroBool, mensagemDeErro := produto.SetPreco(preco)
+
+		//Caso algum erro ocorra ao adicionar o preco do produto, sera impresso a mensagem de erro
 		if !erroBool {
 			fmt.Println(mensagemDeErro)
 		}
 		erroBool, mensagemDeErro = produto.SetQuantidade(quantidade)
+
+		//Caso algum erro ocorra ao adicionar a quantidade do produto, sera impresso a mensagem de erro
 		if !erroBool {
 			fmt.Println(mensagemDeErro)
 		}
@@ -161,35 +163,78 @@ func BuscarTodosProdutos() []Produto {
 	//Fechando a conexao com o banco de dados
 	erro = db.Close()
 
-	//Caso algum erro ocorra ao fechar a conexao, o programa sera abortado
+	//Caso algum erro ocorra ao fechar a conexao, o erro sera exibido
 	if erro != nil {
-		fmt.Println("Um erro ocorreu ao tentar fechar a conexao com o banco de dados:", erro)
-		os.Exit(-1)
+		panic(erro.Error)
 	}
 
 	return listaDeProdutos
 }
 
-//CriarNovoProduto serve para conectar ao banco de dados e adicionar um produto no banco de dados
+//CriarNovoProduto serve para conectar ao banco de dados e adicionar um produto no banco de dados.
+//Parametro: nome: Valor do nome do novo produto.
+//Parametro: descricao: Valor da descricao do novo produto.
+//Parametro: preco: Valor do preco do novo produto
+//Parametro: quantidade: Valor da quantidade do novo produto.
 func CriarNovoProduto(nome string, descricao string, preco float64, quantidade int) {
 
 	//Conectndo com o banco de dados
 	db := db.ConectarComBancoDeDados(db.ObterCredenciaisDeAcessoAoBancoDeDados(db.NomeArquivoCredencialBancoDeDados))
 
+	//Preparando a query sql
 	inserirDadosNoBancoDeDados, erro := db.Prepare("insert into produtos(nome, descricao, preco, quantidade) values($1, $2, $3, $4)")
 
+	//Caso algum erro ocorra, ele sera exibido
 	if erro != nil {
 		panic(erro.Error)
 	}
 
-	inserirDadosNoBancoDeDados.Exec(nome, descricao, preco, quantidade)
+	//Inserindo no banco de dados os valores do novo produto
+	_, erro = inserirDadosNoBancoDeDados.Exec(nome, descricao, preco, quantidade)
+
+	//Caso algum erro ocorra, ele sera exibido
+	if erro != nil {
+		panic(erro)
+	}
 
 	//Fechando a conexao com o banco de dados
 	erro = db.Close()
 
-	//Caso algum erro ocorra ao fechar a conexao, o programa sera abortado
+	//Caso algum erro ocorra ao fechar a conexao, o erro sera exibido
 	if erro != nil {
-		fmt.Println("Um erro ocorreu ao tentar fechar a conexao com o banco de dados:", erro)
-		os.Exit(-1)
+		panic(erro.Error)
 	}
+}
+
+//DeletarProduto serve para conectar ao banco de dados e deletar um produto.
+//Parametro: id: Id do produto a ser removido.
+func DeletarProduto(id string) {
+
+	//Conectando com o banco de dados
+	db := db.ConectarComBancoDeDados(db.ObterCredenciaisDeAcessoAoBancoDeDados(db.NomeArquivoCredencialBancoDeDados))
+
+	//Preparando a query sql
+	deletarProduto, erro := db.Prepare("delete from produtos where id=$1")
+
+	//Caso algum erro ocorra, ele sera exibido
+	if erro != nil {
+		panic(erro.Error)
+	}
+
+	//Deletando produto do banco de dados
+	_, erro = deletarProduto.Exec(id)
+
+	//Caso algum erro ocorra, ele sera exibido
+	if erro != nil {
+		panic(erro.Error)
+	}
+
+	//Fechando a conexao com o banco de dados
+	erro = db.Close()
+
+	//Caso algum erro ocorra ao fechar a conexao, o erro sera exibido
+	if erro != nil {
+		panic(erro.Error)
+	}
+
 }

@@ -36,6 +36,8 @@
                             <td>{{.GetDescricao}}</td>
                             <td>{{.GetPreco}}</td>
                             <td>{{.GetQuantidade}}</td>
+                            <!--Criando botao deletar-->
+                            <td><a href="/delete?id={{.GetID}}" class="btn btn-danger">Deletar</a></td>
                         </tr>
                         {{end}}
                     </tbody>

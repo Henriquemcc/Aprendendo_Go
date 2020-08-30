@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"html/template"
 	"log"
 	"loja/models"
@@ -60,8 +61,25 @@ func Insert(w http.ResponseWriter, r *http.Request) {
 			log.Println("Erro na conversão da quantidade:", erro)
 		}
 
-		//Criando novo produto
-		models.CriarNovoProduto(nome, descricao, precoConvertidoParaFloat64, quantidadeConvertidaParaInt)
+		//Criando instancia da classe Produto
+		produto := models.Produto{}
+
+		//Adicionando os valores lidos na instancia da classe Produto
+		produto.SetNome(nome)
+		produto.SetDescricao(descricao)
+		sucesso, mensagemDeErro := produto.SetPreco(precoConvertidoParaFloat64)
+		if !sucesso {
+			fmt.Println(mensagemDeErro)
+			return
+		}
+		sucesso, mensagemDeErro = produto.SetQuantidade(quantidadeConvertidaParaInt)
+		if !sucesso {
+			fmt.Println(mensagemDeErro)
+			return
+		}
+
+		//Criando o novo produto
+		models.CriarNovoProduto(produto)
 
 	}
 
@@ -88,5 +106,13 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 //Parametro: w: Instancia da interface usada pelo manipulador http para construir a resposta http.
 //Parametro: r: Instancia da struct request, que representa uma requisicao recebida pelo servidor ou enviada pelo cliente.
 func Edit(w http.ResponseWriter, r *http.Request) {
-	templateDaAplicacaoWeb.ExecuteTemplate(w, "Edit", nil)
+
+	//Obtendo o id do produto
+	idDoProduto := r.URL.Query().Get("id")
+
+	//Obtendo os dados do produto
+	produto := models.EditarProduto(idDoProduto)
+
+	//Executndo aplicacao web
+	templateDaAplicacaoWeb.ExecuteTemplate(w, "Edit", &produto)
 }

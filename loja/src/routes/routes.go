@@ -19,4 +19,7 @@ func CarregarRotas() {
 
 	//Carregando rota para o comando delete
 	http.HandleFunc("/delete", controllers.Delete)
+
+	//Carregando rota para a pagina editar
+	http.HandleFunc("/edit", controllers.Edit)
 }

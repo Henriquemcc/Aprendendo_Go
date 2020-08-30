@@ -83,3 +83,10 @@ func Delete(w http.ResponseWriter, r *http.Request) {
 	//Redirecionando usuario
 	http.Redirect(w, r, "/", 301)
 }
+
+//Edit serve para atender a requisicao para a pagina Edit, que ira realizar a edicao de um produto.
+//Parametro: w: Instancia da interface usada pelo manipulador http para construir a resposta http.
+//Parametro: r: Instancia da struct request, que representa uma requisicao recebida pelo servidor ou enviada pelo cliente.
+func Edit(w http.ResponseWriter, r *http.Request) {
+	templateDaAplicacaoWeb.ExecuteTemplate(w, "Edit", nil)
+}

@@ -330,8 +330,31 @@ func EditarProduto(id string) Produto {
 
 	//Caso algum erro ocorra ao fechar a conexao, ele sera exibido
 	if erro != nil {
-		panic(erro.Error)
+		panic(erro.Error())
 	}
 
 	return produtoParaAtualizar
+}
+
+//AtualizarProduto serve para conectar ao banco de dados e atualizar um produto
+//Parametro: produto: Instancia da struct Produto que sera atualizada no banco de dados.
+func AtualizarProduto(produto Produto) {
+
+	//Conectndo com o banco de dados
+	db := db.ConectarComBancoDeDados(db.ObterCredenciaisDeAcessoAoBancoDeDados(db.NomeArquivoCredencialBancoDeDados))
+
+	//Preparando query sql
+	AtualizarProduto, erro := db.Prepare("update produtos set nome=$1, descricao=$2, preco=$3, quantidade=$4 where id=$5")
+
+	//Caso algum erro ocorra, ele sera exibido
+	if erro != nil {
+		panic(erro.Error())
+	}
+
+	_, erro = AtualizarProduto.Exec(produto.GetNome(), produto.GetDescricao(), produto.GetPreco(), produto.GetQuantidade(), produto.GetID())
+
+	//Caso algum erro ocorra, ele sera exibido
+	if erro != nil {
+		panic(erro.Error())
+	}
 }

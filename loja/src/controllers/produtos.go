@@ -37,6 +37,8 @@ func New(w http.ResponseWriter, r *http.Request) {
 //Parametro: w: Instancia da interface usada pelo manipulador http para construir a resposta http.
 //Parametro: r: Instancia da struct request, que representa uma requisicao recebida pelo servidor ou enviada pelo cliente.
 func Insert(w http.ResponseWriter, r *http.Request) {
+
+	//Verificando se o metodo eh POST
 	if r.Method == "POST" {
 
 		//Obtendo valores do novo produto
@@ -48,17 +50,19 @@ func Insert(w http.ResponseWriter, r *http.Request) {
 		//Convertendo o preco de string para float64
 		precoConvertidoParaFloat64, erro := strconv.ParseFloat(preco, 64)
 
-		//Caso algum erro ocorra, sera exibido uma mensagem de erro
+		//Caso algum erro ocorra, sera exibido uma mensagem de erro e a funcao sera abortada
 		if erro != nil {
-			log.Println("Erro na conversão do preço:", erro)
+			log.Println("Erro na conversão do preço para float64:", erro)
+			return
 		}
 
 		//Convertendo a quantidade de string para int
 		quantidadeConvertidaParaInt, erro := strconv.Atoi(quantidade)
 
-		//Caso algum erro ocorra, sera exibido uma mensagem de erro
+		//Caso algum erro ocorra, sera exibido uma mensagem de erro e a funcao sera abortada
 		if erro != nil {
-			log.Println("Erro na conversão da quantidade:", erro)
+			log.Println("Erro na conversão da quantidade para int:", erro)
+			return
 		}
 
 		//Criando instancia da classe Produto
@@ -115,4 +119,77 @@ func Edit(w http.ResponseWriter, r *http.Request) {
 
 	//Executndo aplicacao web
 	templateDaAplicacaoWeb.ExecuteTemplate(w, "Edit", &produto)
+}
+
+//Update serve para atender a requisicao para o comando update, que ira atualizar o(s) valor(es) de um produto.
+//Parametro: w: Instancia da interface usada pelo manipulador http para construir a resposta http.
+//Parametro: r: Instancia da struct request, que representa uma requisicao recebida pelo servidor ou enviada pelo cliente.
+func Update(w http.ResponseWriter, r *http.Request) {
+
+	//Verificando se o metodo eh POST
+	if r.Method == "POST" {
+
+		//Obtendo valores do produto que foi editado
+		id := r.FormValue("id")
+		nome := r.FormValue("nome")
+		descricao := r.FormValue("descricao")
+		preco := r.FormValue("preco")
+		quantidade := r.FormValue("quantidade")
+
+		//Convertendo o id de string para int
+		idConvertidoParaInt, erro := strconv.Atoi(id)
+
+		//Caso algum erro ocorra, sera exibido uma mensagem de erro e a funcao sera abortada
+		if erro != nil {
+			log.Println("Erro na conversão do id para int:", erro)
+			return
+		}
+
+		//Convertendo o preco de string para float64
+		precoConvertidoParaFloat64, erro := strconv.ParseFloat(preco, 64)
+
+		//Caso algum erro ocorra, sera exibido uma mensagem de erro e a funcao sera abortada
+		if erro != nil {
+			log.Println("Erro na conversão do preço para float64:", erro)
+			return
+		}
+
+		//Convertendo a quantidade de string para int
+		quantidadeConvertidaParaInt, erro := strconv.Atoi(quantidade)
+
+		//Caso algum erro ocorra, sera exibido uma mensagem de erro e a funcao sera abortada
+		if erro != nil {
+			log.Println("Erro na conversão da quantidade para int:", erro)
+			return
+		}
+
+		//Criando instancia da classe Produto
+		produto := models.Produto{}
+
+		//Adicionando os valores lidos na instancia da classe Produto
+		sucesso, mensagemDeErro := produto.SetID(idConvertidoParaInt)
+		if !sucesso {
+			fmt.Println(mensagemDeErro)
+			return
+		}
+		produto.SetNome(nome)
+		produto.SetDescricao(descricao)
+		sucesso, mensagemDeErro = produto.SetPreco(precoConvertidoParaFloat64)
+		if !sucesso {
+			fmt.Println(mensagemDeErro)
+			return
+		}
+		sucesso, mensagemDeErro = produto.SetQuantidade(quantidadeConvertidaParaInt)
+		if !sucesso {
+			fmt.Println(mensagemDeErro)
+			return
+		}
+
+		//Atualizando o produto
+		models.AtualizarProduto(produto)
+	}
+
+	//Redirecionando usuario
+	http.Redirect(w, r, "/", 301)
+
 }

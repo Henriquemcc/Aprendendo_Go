@@ -22,4 +22,7 @@ func CarregarRotas() {
 
 	//Carregando rota para a pagina editar
 	http.HandleFunc("/edit", controllers.Edit)
+
+	//Carregando rota para o comando atualizar
+	http.HandleFunc("/update", controllers.Update)
 }
